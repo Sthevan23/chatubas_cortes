@@ -30,6 +30,19 @@
                 <li><a href="#galeria">Galeria</a></li>
                 <li><a href="#agendamento" class="btn-primary">Agendar</a></li>
             </ul>
+            <button class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="mobile-nav-overlay" id="mobileNav">
+                <ul class="mobile-nav-links">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#servicos">Serviços</a></li>
+                    <li><a href="#galeria">Galeria</a></li>
+                    <li><a href="#agendamento" class="btn-primary">Agendar</a></li>
+                </ul>
+            </div>
         </nav>
     </header>
 
@@ -61,28 +74,47 @@
                     <p>Escolha o serviço, o dia e o horário que melhor funcionam para você.</p>
                 </div>
 
+                <div class="barber-selection card">
+                    <h3>Escolha o Barbeiro</h3>
+                    <div class="barbers-grid-booking">
+                        <label class="barber-card">
+                            <input type="radio" name="barber" value="Pablo" checked>
+                            <div class="barber-info">
+                                <span class="barber-name">Pablo</span>
+                                <span class="barber-specialty">Corte & Barba</span>
+                            </div>
+                        </label>
+                        <label class="barber-card">
+                            <input type="radio" name="barber" value="Vinicios">
+                            <div class="barber-info">
+                                <span class="barber-name">Vinicios</span>
+                                <span class="barber-specialty">Corte & Barba</span>
+                            </div>
+                        </label>
+                        <label class="barber-card">
+                            <input type="radio" name="barber" value="Zoio">
+                            <div class="barber-info">
+                                <span class="barber-name">Zoio</span>
+                                <span class="barber-specialty">Corte & Barba</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
                 <div class="service-selection card">
                     <h3>Escolha o Serviço</h3>
                     <div class="services-grid-booking">
                         <label class="service-card">
-                            <input type="radio" name="service" value="Corte de Cabelo" checked>
+                            <input type="radio" name="service" value="Corte" checked>
                             <div class="service-info">
-                                <span class="service-name">Corte de Cabelo</span>
-                                <span class="service-price">R$ 40,00</span>
+                                <span class="service-name">Corte</span>
+                                <span class="service-price">R$ 35,00</span>
                             </div>
                         </label>
                         <label class="service-card">
-                            <input type="radio" name="service" value="Barba Profissional">
+                            <input type="radio" name="service" value="Barba">
                             <div class="service-info">
-                                <span class="service-name">Barba Profissional</span>
+                                <span class="service-name">Barba</span>
                                 <span class="service-price">R$ 30,00</span>
-                            </div>
-                        </label>
-                        <label class="service-card">
-                            <input type="radio" name="service" value="Corte + Barba">
-                            <div class="service-info">
-                                <span class="service-name">Corte + Barba</span>
-                                <span class="service-price">R$ 60,00</span>
                             </div>
                         </label>
                         <label class="service-card">
@@ -92,8 +124,16 @@
                                 <span class="service-price">R$ 15,00</span>
                             </div>
                         </label>
+                        <label class="service-card">
+                            <input type="radio" name="service" value="Pigmentação">
+                            <div class="service-info">
+                                <span class="service-name">Pigmentação</span>
+                                <span class="service-price">R$ 20,00</span>
+                            </div>
+                        </label>
                     </div>
                 </div>
+
 
                 <div class="booking-grid">
                     <div class="calendar-wrapper card">
@@ -144,8 +184,43 @@
         </section>
     </main>
 
-    <footer>
-        <!-- Footer content will go here -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-section">
+                <div class="logo">CHATUBAS <span>CORTES</span></div>
+                <p>Excelência em cortes e barba desde 2024. Onde o estilo encontra a tradição.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Endereço</h4>
+                <p>Praça Nelson Pelegrino, 11</p>
+                <p>Bairro Bom Pastor</p>
+                <p>Divinópolis - MG</p>
+                <a href="https://www.google.com/maps/search/?api=1&query=Praça+Nelson+Pelegrino,+11,+Bom+Pastor,+Divinópolis+-+MG"
+                    target="_blank" class="maps-link">Ver no Google Maps</a>
+                <div class="map-container">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3744.568471465063!2d-44.88921792398453!3d-20.12525!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjDCsDA3JzMwLjkiUyA0NMKwNTMnMTMuMyJX!5e0!3m2!1spt-BR!2sbr!4v1740428160000!5m2!1spt-BR!2sbr"
+                        width="100%" height="150" style="border:0;" allowfullscreen="" loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Horários</h4>
+                <p>Segunda - Sábado</p>
+                <p>06:00 - 20:00</p>
+            </div>
+            <div class="footer-section">
+                <h4>Redes Sociais</h4>
+                <div class="social-links">
+                    <a href="https://instagram.com" target="_blank">Instagram</a>
+                    <a href="https://wa.me/553788553375" target="_blank">WhatsApp</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom container">
+            <p>&copy; 2026 Chatubas Cortes. Todos os direitos reservados.</p>
+        </div>
     </footer>
 
     <script src="script.js"></script>

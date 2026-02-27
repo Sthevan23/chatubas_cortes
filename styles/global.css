@@ -1,17 +1,21 @@
 :root {
-    --bg-primary: #0a0a0a;
-    --bg-secondary: #141414;
+    --bg-primary: #000000;
+    --bg-secondary: #080808;
     --text-primary: #ffffff;
-    --text-secondary: #b3b3b3;
-    --accent-blue: #007bff;
-    --accent-gold: #d4af37;
-    --glass-bg: rgba(20, 20, 20, 0.8);
-    --border-color: rgba(255, 255, 255, 0.1);
+    --text-secondary: #999999;
+    --accent-cyan: #00f2ff;
+    /* Ciano Ice */
+    --accent-white: #ffffff;
+    /* Branco Puro */
+    --accent-red: #ff3e3e;
+    /* Vermelho Alerta */
+    --glass-bg: rgba(0, 0, 0, 0.9);
+    --border-color: rgba(0, 242, 255, 0.15);
 
     --font-heading: 'Montserrat', sans-serif;
     --font-body: 'Inter', sans-serif;
 
-    --transition: all 0.3s ease;
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
