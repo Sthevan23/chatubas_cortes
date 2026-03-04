@@ -151,6 +151,7 @@ header nav {
 /* Section Spacing */
 section {
     padding: 100px 0;
+    scroll-margin-top: 80px;
 }
 
 .section-title {
