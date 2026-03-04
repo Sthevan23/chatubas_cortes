@@ -84,12 +84,29 @@ exports.criarAgendamento = async (req, res) => {
   }
 };
 
-exports.listarAgendamentos = async (_req, res) => {
+exports.listarAgendamentos = async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      "SELECT id, nome, telefone, data, hora, servicos, barbeiro, criado_em FROM agendamentos ORDER BY data ASC, hora ASC"
-    );
+    const { data, barbeiro } = req.query;
+    let sql = "SELECT id, nome, telefone, data, hora, servicos, barbeiro, criado_em FROM agendamentos";
+    const params = [];
 
+    const conditions = [];
+    if (data) {
+      conditions.push("data = ?");
+      params.push(data);
+    }
+    if (barbeiro) {
+      conditions.push("barbeiro = ?");
+      params.push(barbeiro);
+    }
+
+    if (conditions.length > 0) {
+      sql += " WHERE " + conditions.join(" AND ");
+    }
+
+    sql += " ORDER BY data ASC, hora ASC";
+
+    const [rows] = await pool.query(sql, params);
     res.json(rows);
   } catch (err) {
     console.error("Erro ao listar agendamentos:", err);
