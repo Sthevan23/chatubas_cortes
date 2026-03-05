@@ -87,7 +87,7 @@ exports.criarAgendamento = async (req, res) => {
 exports.listarAgendamentos = async (req, res) => {
   try {
     const { data, barbeiro } = req.query;
-    let sql = "SELECT id, nome, telefone, data, hora, servicos, barbeiro, criado_em FROM agendamentos";
+    let sql = "SELECT id, nome, telefone, data, hora, status, servicos, barbeiro, criado_em FROM agendamentos";
     const params = [];
 
     const conditions = [];
@@ -185,19 +185,39 @@ exports.atualizarAgendamento = async (req, res) => {
 };
 
 exports.removerAgendamento = async (req, res) => {
-  try {
-    const { id } = req.params;
+  const { id } = req.params;
 
+  try {
     const [result] = await pool.query("DELETE FROM agendamentos WHERE id = ?", [id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ mensagem: "Agendamento não encontrado." });
     }
 
-    res.status(204).send();
-  } catch (err) {
-    console.error("Erro ao remover agendamento:", err);
-    res.status(500).json({ mensagem: "Erro ao remover agendamento." });
+    res.status(200).json({ mensagem: "Agendamento excluído com sucesso." });
+  } catch (error) {
+    console.error("Erro ao excluir agendamento:", error);
+    res.status(500).json({ mensagem: "Erro ao excluir agendamento." });
+  }
+};
+
+exports.confirmarAgendamento = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [result] = await pool.query(
+      "UPDATE agendamentos SET status = 'concluido' WHERE id = ?",
+      [id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ mensagem: "Agendamento não encontrado." });
+    }
+
+    res.status(200).json({ mensagem: "Agendamento marcado como concluído." });
+  } catch (error) {
+    console.error("Erro ao confirmar agendamento:", error);
+    res.status(500).json({ mensagem: "Erro ao confirmar agendamento." });
   }
 };
 
