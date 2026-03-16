@@ -6,6 +6,13 @@ function parseDateTime(data, hora) {
   return new Date(year, month - 1, day, hour, minute, 0, 0);
 }
 
+/** Normaliza servicos: aceita string ou array e retorna string para o banco. */
+function normalizarServicos(servicos) {
+  if (Array.isArray(servicos)) return servicos.join(", ");
+  if (typeof servicos === "string") return servicos.trim();
+  return "";
+}
+
 async function validarAgendamento({ id, data, hora, barbeiro }) {
   const sql = `
     SELECT COUNT(*) AS total
@@ -22,7 +29,7 @@ async function validarAgendamento({ id, data, hora, barbeiro }) {
 
 exports.criarAgendamento = async (req, res) => {
   try {
-    const {
+    let {
       nome,
       telefone,
       data,
@@ -30,6 +37,12 @@ exports.criarAgendamento = async (req, res) => {
       servicos,
       barbeiro,
     } = req.body;
+
+    nome = typeof nome === "string" ? nome.trim() : "";
+    servicos = normalizarServicos(servicos);
+    barbeiro = typeof barbeiro === "string" ? barbeiro.trim() : "";
+    data = typeof data === "string" ? data.trim() : "";
+    hora = typeof hora === "string" ? hora.trim() : "";
 
     if (!nome || !data || !hora || !servicos || !barbeiro) {
       return res.status(400).json({
@@ -62,7 +75,7 @@ exports.criarAgendamento = async (req, res) => {
 
     const [result] = await pool.query(sql, [
       nome,
-      telefone || null,
+      (telefone && typeof telefone === "string" ? telefone.trim() : null) || null,
       data,
       hora,
       servicos,
@@ -117,7 +130,7 @@ exports.listarAgendamentos = async (req, res) => {
 exports.atualizarAgendamento = async (req, res) => {
   try {
     const { id } = req.params;
-    const {
+    let {
       nome,
       telefone,
       data,
@@ -125,6 +138,12 @@ exports.atualizarAgendamento = async (req, res) => {
       servicos,
       barbeiro,
     } = req.body;
+
+    nome = typeof nome === "string" ? nome.trim() : "";
+    servicos = normalizarServicos(servicos);
+    barbeiro = typeof barbeiro === "string" ? barbeiro.trim() : "";
+    data = typeof data === "string" ? data.trim() : "";
+    hora = typeof hora === "string" ? hora.trim() : "";
 
     if (!nome || !data || !hora || !servicos || !barbeiro) {
       return res.status(400).json({
@@ -157,7 +176,7 @@ exports.atualizarAgendamento = async (req, res) => {
 
     const [result] = await pool.query(sql, [
       nome,
-      telefone || null,
+      (telefone && typeof telefone === "string" ? telefone.trim() : null) || null,
       data,
       hora,
       servicos,
