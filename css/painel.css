@@ -1,0 +1,914 @@
+/* Painel administrativo — Chatubas Cortes */
+
+:root {
+    --painel-success: #4ade80;
+    --painel-success-dim: rgba(74, 222, 128, 0.12);
+    --painel-danger: #f87171;
+    --painel-danger-dim: rgba(248, 113, 113, 0.12);
+    --painel-pending: #5b9cf5;
+}
+
+body.painel-page {
+    background: radial-gradient(ellipse 120% 80% at 100% 0%, #151a24 0%, var(--bg-primary) 45%);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    margin: 0;
+    min-height: 100vh;
+}
+
+.port-warning {
+    background: linear-gradient(90deg, var(--painel-danger), #7a3030);
+    color: #fff;
+    text-align: center;
+    padding: 12px;
+    font-weight: 600;
+    display: none;
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+}
+
+.port-warning a {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.painel-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: color-mix(in srgb, var(--bg-primary) 94%, transparent);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.painel-topbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+}
+
+.painel-page .container {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 1.5rem 1.25rem 2.5rem;
+}
+
+.painel-brand .logo {
+    font-family: var(--font-heading);
+    font-size: 1.65rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text-primary);
+    line-height: 1.1;
+}
+
+.painel-brand .logo span {
+    color: var(--accent);
+}
+
+.painel-date-heading {
+    margin: 0.35rem 0 0;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.painel-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.85rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    white-space: nowrap;
+    transition: var(--transition);
+}
+
+.painel-back-link:hover {
+    color: var(--accent);
+    border-color: var(--accent-dim);
+}
+
+.filters-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-soft);
+}
+
+.filters-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.painel-page .input-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.painel-page .input-group label i {
+    color: var(--accent);
+    font-size: 0.75rem;
+}
+
+.glass-input {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    padding: 0.7rem 0.9rem;
+    border-radius: var(--radius-md);
+    width: 100%;
+    outline: none;
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: var(--transition);
+}
+
+.glass-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-dim);
+}
+
+select.glass-input option {
+    background: var(--bg-card);
+    color: var(--text-primary);
+}
+
+.date-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-primary);
+    padding: 0.35rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+}
+
+.date-br-field {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+}
+
+.date-br-field:focus-within {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+}
+
+.date-br-display {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    letter-spacing: 0.02em;
+    pointer-events: none;
+    user-select: none;
+}
+
+.date-br-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    margin: 0;
+    padding: 0;
+}
+
+.date-nav .glass-input {
+    border: none;
+    background: transparent;
+    padding: 0.55rem 0.25rem;
+    text-align: center;
+    font-weight: 600;
+}
+
+.painel-page .btn-icon {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    color: var(--accent);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.painel-page .btn-icon:hover {
+    background: var(--accent-dim-soft);
+    border-color: var(--accent);
+}
+
+.stats-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.15rem;
+    padding-top: 1.15rem;
+    border-top: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+}
+
+.stats-chips {
+    display: flex;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+}
+
+.stat-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 72px;
+    padding: 0.55rem 0.85rem;
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+}
+
+.stat-chip-value {
+    font-family: var(--font-heading);
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+}
+
+.stat-chip-label {
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    margin-top: 0.2rem;
+    font-weight: 600;
+}
+
+.stat-chip--pending .stat-chip-value {
+    color: var(--painel-pending);
+}
+
+.stat-chip--done .stat-chip-value {
+    color: var(--painel-success);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 0.55rem 1rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-family: inherit;
+}
+
+.btn-today {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.btn-outline:hover {
+    background: var(--accent);
+    color: var(--bg-primary);
+}
+
+.section-heading {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--text-secondary);
+    margin: 0 0 0.85rem;
+}
+
+.appointment-list {
+    display: grid;
+    gap: 0.85rem;
+}
+
+.appointment-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.appointment-item:hover {
+    border-color: var(--border-color);
+    box-shadow: var(--shadow-soft);
+}
+
+.appointment-item.concluido {
+    opacity: 0.92;
+    background: rgba(109, 143, 106, 0.05);
+}
+
+.appointment-item__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.time-badge {
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+}
+
+.appointment-item.concluido .time-badge {
+    color: var(--painel-success);
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.62rem;
+    font-weight: 700;
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.status-badge--pending {
+    background: var(--accent-dim);
+    color: var(--accent);
+}
+
+.status-badge--done {
+    background: var(--painel-success-dim);
+    color: var(--painel-success);
+}
+
+.appointment-item__body {
+    padding: 1rem;
+}
+
+.client-name {
+    margin: 0 0 0.65rem;
+    font-family: var(--font-body);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: capitalize;
+}
+
+.client-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+}
+
+.meta-item i {
+    width: 16px;
+    text-align: center;
+    color: var(--accent);
+    font-size: 0.78rem;
+}
+
+.appointment-item__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem 1rem;
+}
+
+.btn-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.65rem 0.4rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: var(--transition);
+    text-decoration: none;
+    font-family: inherit;
+}
+
+.btn-action i {
+    font-size: 1.1rem;
+}
+
+.btn-wa {
+    background: rgba(37, 211, 102, 0.12);
+    color: #25d366;
+    border-color: rgba(37, 211, 102, 0.25);
+}
+
+.btn-wa:hover {
+    background: #25d366;
+    color: #fff;
+}
+
+.btn-check {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-color: var(--border-color);
+}
+
+.btn-check:hover {
+    background: var(--accent);
+    color: var(--bg-primary);
+}
+
+.btn-del {
+    background: var(--painel-danger-dim);
+    color: var(--painel-danger);
+    border-color: rgba(196, 92, 92, 0.25);
+}
+
+.btn-del:hover {
+    background: var(--painel-danger);
+    color: #fff;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    background: var(--bg-card);
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-lg);
+    color: var(--text-secondary);
+}
+
+.empty-state p {
+    margin: 0 0 0.75rem;
+}
+
+.loading-state i {
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
+    display: block;
+    color: var(--accent);
+}
+
+.painel-accent-icon {
+    color: var(--accent);
+}
+
+.painel-footer {
+    margin-top: 2rem;
+    text-align: center;
+    padding-bottom: 1.5rem;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+}
+
+/* Login */
+.login-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1.5rem;
+}
+
+.login-wrapper {
+    width: 100%;
+    max-width: 420px;
+}
+
+.login-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 2rem 1.75rem;
+    box-shadow: var(--shadow-soft);
+}
+
+.login-brand {
+    text-align: center;
+    margin-bottom: 1.75rem;
+}
+
+.login-brand .logo {
+    font-family: var(--font-heading);
+    font-size: 1.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.login-brand .logo span {
+    color: var(--accent);
+}
+
+.login-brand p {
+    margin: 0.5rem 0 0;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.password-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-field .glass-input {
+    padding-right: 2.75rem;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.password-toggle:hover {
+    color: var(--accent);
+    background: var(--accent-dim-soft);
+}
+
+.password-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.login-submit {
+    width: 100%;
+    margin-top: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.login-error {
+    margin: 0;
+    padding: 0.65rem 0.85rem;
+    border-radius: var(--radius-sm);
+    background: var(--painel-danger-dim);
+    color: var(--painel-danger);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.login-hint {
+    margin: 1.25rem 0 0;
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    text-align: center;
+    line-height: 1.5;
+}
+
+.login-hint code {
+    background: var(--bg-primary);
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+}
+
+.login-back {
+    display: block;
+    text-align: center;
+    margin-top: 1.25rem;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.login-back:hover {
+    color: var(--accent);
+}
+
+/* Topbar actions */
+.painel-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.painel-user-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: var(--radius-sm);
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.btn-logout {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.72rem;
+}
+
+.filters-grid--single {
+    grid-template-columns: 1fr;
+}
+
+/* Financeiro */
+.finance-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-soft);
+}
+
+.finance-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.finance-header .section-heading {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.finance-tabs {
+    display: flex;
+    gap: 0.35rem;
+    background: var(--bg-primary);
+    padding: 0.25rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+}
+
+.finance-tab {
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.45rem 0.75rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.finance-tab--active {
+    background: var(--accent);
+    color: var(--bg-primary);
+}
+
+.finance-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.finance-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.finance-card--total {
+    border-color: var(--accent-dim);
+}
+
+.finance-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.finance-value {
+    font-family: var(--font-heading);
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: var(--painel-success);
+    line-height: 1;
+}
+
+.finance-value--sm {
+    font-size: 1.45rem;
+    color: var(--accent);
+}
+
+.finance-payments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.finance-pay-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: var(--radius-sm);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+.finance-pay-chip strong {
+    color: var(--text-primary);
+}
+
+.finance-empty {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.finance-history-title {
+    margin: 0 0 0.65rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+}
+
+.finance-history-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.finance-history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.65rem 0.75rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    font-size: 0.82rem;
+}
+
+.finance-history-item strong {
+    display: block;
+    color: var(--text-primary);
+    text-transform: capitalize;
+}
+
+.finance-history-item span {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+}
+
+.finance-history-right {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.finance-pay-badge {
+    display: block;
+    font-size: 0.65rem;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 0.15rem;
+}
+
+@media (max-width: 640px) {
+    .filters-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .stats-chips {
+        justify-content: space-between;
+    }
+
+    .stat-chip {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .btn-today {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .painel-brand .logo {
+        font-size: 1.4rem;
+    }
+
+    .painel-topbar-inner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .painel-topbar-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .finance-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .finance-history-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .finance-history-right {
+        text-align: left;
+    }
+}

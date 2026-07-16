@@ -15,9 +15,16 @@ CREATE TABLE IF NOT EXISTS agendamentos (
   telefone VARCHAR(30) NOT NULL,
   data DATE NOT NULL,
   hora TIME NOT NULL,
+  forma_pagamento VARCHAR(40) DEFAULT '',
+  valor_total DECIMAL(10,2) DEFAULT 0,
+  status VARCHAR(20) NOT NULL DEFAULT 'pendente',
+  concluido_em DATETIME NULL,
   criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
   -- Impede dois agendamentos no mesmo horário para o mesmo barbeiro
   UNIQUE KEY uniq_barbeiro_data_hora (barbeiro, data, hora)
 );
+
+-- Se a tabela já existir sem a coluna status:
+-- ALTER TABLE agendamentos ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'pendente' AFTER hora;
 

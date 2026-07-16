@@ -1,266 +1,446 @@
-// Painel do Barbeiro - Lógica de Gestão
-// Usamos a mesma origem da página para evitar problemas de porta/CORS
-const API_URL = window.location.origin.includes('5500') ? "http://localhost:3000" : window.location.origin;
-const AGENDAMENTOS_URL = `${API_URL}/agendamentos`;
+const TOKEN_KEY = "chatubas_token";
+const BARBER_KEY = "chatubas_barbeiro";
 
-console.log("=== SISTEMA INICIADO NO PAINEL ===");
-console.log("Página carregada em:", window.location.href);
-console.log("Conectando na API em:", AGENDAMENTOS_URL);
-
-// Adicionar indicador visual de conexão no console
-window.addEventListener('load', () => {
-    console.log("%c Servidor está respondendo! Se vir erro de conexão, use a porta 3000.", "color: #00f2ff; font-weight: bold; font-size: 14px;");
-});
-
-// Elements
-const portWarning = document.getElementById('portWarning');
-const barberFilter = document.getElementById('barberFilter');
-
-// Verificar se está na porta errada (5500 do Live Server)
-if (window.location.port === '5500') {
-    if (portWarning) portWarning.style.display = 'block';
-    console.warn("AVISO: Você está usando a porta 5500. Use a porta 3000 para que o sistema funcione corretamente.");
+function apiBase() {
+  const isExternal =
+    window.location.protocol === "file:" ||
+    window.location.port === "5500" ||
+    !window.location.hostname;
+  return isExternal ? "http://localhost:3000" : "";
 }
-const dateFilter = document.getElementById('dateFilter');
-const prevDayBtn = document.getElementById('prevDay');
-const nextDayBtn = document.getElementById('nextDay');
-const todayBtn = document.getElementById('todayBtn');
-const appointmentList = document.getElementById('appointmentList');
-const totalCount = document.getElementById('totalCount');
-const loadingIndicator = document.getElementById('loading');
 
-// Default to today
+function agendamentosUrl(path = "") {
+  const base = `${apiBase()}/agendamentos`;
+  if (!path) return base;
+  if (path.startsWith("?")) return `${base}${path}`;
+  return `${base}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+function financeiroUrl(query = "") {
+  return `${apiBase()}/financeiro/resumo${query}`;
+}
+
+function authHeaders() {
+  const token = localStorage.getItem(TOKEN_KEY);
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function authFetch(url, options = {}) {
+  return fetch(url, {
+    ...options,
+    headers: {
+      ...authHeaders(),
+      ...(options.headers || {}),
+    },
+  });
+}
+
+function requireAuth() {
+  if (!localStorage.getItem(TOKEN_KEY)) {
+    window.location.replace("login.html");
+    return false;
+  }
+  return true;
+}
+
+function logout() {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(BARBER_KEY);
+  window.location.replace("login.html");
+}
+
+if (!requireAuth()) {
+  // redirect to login
+} else {
+
+const portWarning = document.getElementById("portWarning");
+const dateFilter = document.getElementById("dateFilter");
+const dateFilterDisplay = document.getElementById("dateFilterDisplay");
+const dateHeading = document.getElementById("dateHeading");
+const barberNameEl = document.getElementById("barberName");
+const prevDayBtn = document.getElementById("prevDay");
+const nextDayBtn = document.getElementById("nextDay");
+const todayBtn = document.getElementById("todayBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const appointmentList = document.getElementById("appointmentList");
+const totalCount = document.getElementById("totalCount");
+const pendingCount = document.getElementById("pendingCount");
+const doneCount = document.getElementById("doneCount");
+const loadingIndicator = document.getElementById("loading");
+const financeTotal = document.getElementById("financeTotal");
+const financeCount = document.getElementById("financeCount");
+const financeByPayment = document.getElementById("financeByPayment");
+const financeHistory = document.getElementById("financeHistory");
+const financeTabs = document.querySelectorAll(".finance-tab");
+
+let financePeriod = "dia";
+const loggedBarber = localStorage.getItem(BARBER_KEY) || "";
+
+if (window.location.port === "5500" && portWarning) {
+  portWarning.style.display = "block";
+}
+
+if (barberNameEl && loggedBarber) {
+  barberNameEl.innerHTML = `<i class="fas fa-user-tie"></i> ${loggedBarber}`;
+}
+
+logoutBtn?.addEventListener("click", logout);
+
+function formatIsoToBR(isoDate) {
+  if (!isoDate) return "";
+  const part = String(isoDate).slice(0, 10);
+  const [year, month, day] = part.split("-");
+  if (!year || !month || !day) return part;
+  return `${day}/${month}/${year}`;
+}
+
+function formatDateBR(isoDate) {
+  const date = new Date(isoDate + "T12:00:00");
+  return date.toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+}
+
+function updateDateDisplay(isoDate) {
+  if (dateFilterDisplay) {
+    dateFilterDisplay.textContent = formatIsoToBR(isoDate || dateFilter?.value);
+  }
+}
+
+function capitalizeName(name) {
+  return (name || "")
+    .trim()
+    .split(/\s+/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function formatMoney(value) {
+  return Number(value || 0).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+}
+
+function updateDateHeading(isoDate) {
+  if (!dateHeading || !isoDate) return;
+  dateHeading.textContent = `${formatDateBR(isoDate)} · ${loggedBarber}`;
+}
+
 function setInitialDate() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const todayStr = `${year}-${month}-${day}`;
+  const now = new Date();
+  const todayStr = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0"),
+  ].join("-");
 
-    if (dateFilter) {
-        dateFilter.value = todayStr;
-        console.log("Data inicial definida para:", todayStr);
-    }
+  if (dateFilter) dateFilter.value = todayStr;
+  updateDateDisplay(todayStr);
+  updateDateHeading(todayStr);
 }
 
 setInitialDate();
 
+async function verifySession() {
+  try {
+    const response = await authFetch(`${apiBase()}/auth/me`);
+    if (!response.ok) {
+      logout();
+      return false;
+    }
+    const data = await response.json();
+    if (data.barbeiro) {
+      localStorage.setItem(BARBER_KEY, data.barbeiro);
+      if (barberNameEl) {
+        barberNameEl.innerHTML = `<i class="fas fa-user-tie"></i> ${data.barbeiro}`;
+      }
+    }
+    return true;
+  } catch {
+    return true;
+  }
+}
+
 async function fetchAppointments() {
-    if (!barberFilter || !dateFilter) {
-        console.error("Filtros não encontrados no DOM!");
-        return;
+  if (!dateFilter) return;
+
+  const date = dateFilter.value;
+  if (!date) return;
+
+  updateDateHeading(date);
+  updateDateDisplay(date);
+  showLoading(true);
+  appointmentList.innerHTML = "";
+
+  try {
+    const params = new URLSearchParams({ data: date });
+    const response = await authFetch(`${agendamentosUrl()}?${params}`);
+
+    if (response.status === 401) {
+      logout();
+      return;
     }
 
-    const barber = barberFilter.value;
-    const date = dateFilter.value;
-
-    console.log(`Solicitando dados: Barbeiro="${barber}", Data="${date}"`);
-
-    if (!barber || !date) {
-        console.warn("Barbeiro ou Data ausentes no filtro.");
-        return;
+    if (!response.ok) {
+      throw new Error(`Erro no servidor: ${response.status}`);
     }
 
-    showLoading(true);
-    appointmentList.innerHTML = '';
-
-    try {
-        const url = `${AGENDAMENTOS_URL}?barbeiro=${encodeURIComponent(barber)}&data=${date}`;
-        console.log("Chamando URL:", url);
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            throw new Error(`Erro no servidor: ${response.status} ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        console.log(`Resposta recebida! Itens encontrados: ${data.length}`);
-
-        if (data.length > 0) {
-            console.table(data); // Ajuda a ver os dados no F12
-        }
-
-        renderAppointments(data, date);
-        updateStats(data);
-    } catch (error) {
-        console.error("ERRO AO CARREGAR:", error);
-        appointmentList.innerHTML = `
-            <div class="empty-state">
-                <p style="color: #ff3e3e; font-weight: bold;">Erro de Conexão!</p>
-                <p>O servidor em ${API_URL} não respondeu.</p>
-                <p style="font-size: 0.8rem; opacity: 0.7;">Motivo: ${error.message}</p>
-                <button onclick="fetchAppointments()" class="btn-outline" style="margin-top: 1rem;">Tentar Novamente</button>
-            </div>
-        `;
-    } finally {
-        showLoading(false);
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      throw new Error("Recarregue com Ctrl+F5 em http://localhost:3000/painel.html");
     }
+
+    const data = await response.json();
+    renderAppointments(data, date);
+    updateStats(data);
+    await fetchFinanceiro();
+  } catch (error) {
+    appointmentList.innerHTML = `
+      <div class="empty-state">
+        <p style="color: #c45c5c; font-weight: bold;">Erro de conexão</p>
+        <p>Verifique se o servidor está rodando (<code>npm start</code>).</p>
+        <p style="font-size: 0.8rem; opacity: 0.7;">${error.message}</p>
+        <button type="button" onclick="fetchAppointments()" class="btn-outline" style="margin-top: 1rem;">Tentar novamente</button>
+      </div>
+    `;
+  } finally {
+    showLoading(false);
+  }
+}
+
+async function fetchFinanceiro() {
+  if (!dateFilter?.value) return;
+
+  const date = dateFilter.value;
+  const mes = date.slice(0, 7);
+  const query =
+    financePeriod === "mes"
+      ? `?mes=${encodeURIComponent(mes)}`
+      : `?data=${encodeURIComponent(date)}`;
+
+  try {
+    const response = await authFetch(financeiroUrl(query));
+
+    if (response.status === 401) {
+      logout();
+      return;
+    }
+
+    if (!response.ok) return;
+
+    const data = await response.json();
+    renderFinanceiro(data);
+  } catch (error) {
+    console.error("Erro financeiro:", error);
+  }
+}
+
+function renderFinanceiro(data) {
+  if (financeTotal) financeTotal.textContent = data.total_formatado || formatMoney(data.total);
+  if (financeCount) financeCount.textContent = String(data.atendimentos || 0);
+
+  if (financeByPayment) {
+    const entries = Object.entries(data.por_pagamento || {});
+    if (entries.length === 0) {
+      financeByPayment.innerHTML = `<p class="finance-empty">Nenhum corte finalizado neste período.</p>`;
+    } else {
+      financeByPayment.innerHTML = entries
+        .map(
+          ([forma, valor]) =>
+            `<div class="finance-pay-chip"><span>${forma}</span><strong>${formatMoney(valor)}</strong></div>`
+        )
+        .join("");
+    }
+  }
+
+  if (financeHistory) {
+    const historico = data.historico || [];
+    if (historico.length === 0) {
+      financeHistory.innerHTML = "";
+    } else {
+      financeHistory.innerHTML = `
+        <h3 class="finance-history-title">Cortes finalizados</h3>
+        <ul class="finance-history-list">
+          ${historico
+            .map(
+              (item) => `
+            <li class="finance-history-item">
+              <div>
+                <strong>${capitalizeName(item.nome)}</strong>
+                <span>${formatIsoToBR(item.data)} · ${item.hora} · ${item.servicos}</span>
+              </div>
+              <div class="finance-history-right">
+                <span class="finance-pay-badge">${item.forma_pagamento || "—"}</span>
+                <strong>${item.valor_formatado || formatMoney(item.valor_total)}</strong>
+              </div>
+            </li>`
+            )
+            .join("")}
+        </ul>`;
+    }
+  }
+}
+
+function buildWhatsAppLink(app, dateLabel) {
+  const cleanPhone = (app.telefone || "").replace(/\D/g, "");
+  const hora = (app.hora || "").slice(0, 5);
+  const pagamento = app.forma_pagamento ? `\n💳 ${app.forma_pagamento}` : "";
+  const text = encodeURIComponent(
+    `Olá ${capitalizeName(app.nome)}! Confirmando seu horário na Chatubas Cortes:\n\n📅 ${dateLabel}\n🕐 ${hora}\n✂️ ${app.servicos}\n💈 ${app.barbeiro}${pagamento}`
+  );
+  return `https://wa.me/55${cleanPhone}?text=${text}`;
 }
 
 function renderAppointments(appointments, selectedDate) {
-    if (appointments.length === 0) {
-        const parts = selectedDate.split('-');
-        const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
-        appointmentList.innerHTML = `
-            <div class="empty-state">
-                <p>Nenhum agendamento para o dia ${formattedDate}.</p>
-                <p style="font-size: 0.8rem; opacity: 0.6;">Tente mudar o dia ou o barbeiro.</p>
-            </div>
-        `;
-        return;
-    }
+  if (appointments.length === 0) {
+    const formattedDate = formatDateBR(selectedDate);
+    appointmentList.innerHTML = `
+      <div class="empty-state">
+        <p>Nenhum agendamento para <strong>${formattedDate}</strong>.</p>
+        <button type="button" onclick="changeDay(1)" class="btn-outline">Ver dia seguinte →</button>
+      </div>
+    `;
+    return;
+  }
 
-    appointments.forEach(app => {
-        const isConcluido = app.status === 'concluido';
-        const item = document.createElement('div');
-        item.className = `appointment-item ${isConcluido ? 'concluido' : ''}`;
+  const dateLabel = formatDateBR(selectedDate);
 
-        // Formatar telefone para link do WhatsApp
-        const cleanPhone = (app.telefone || "").replace(/\D/g, "");
-        const waLink = `https://wa.me/55${cleanPhone}`;
+  appointments.forEach((app) => {
+    const isConcluido = app.status === "concluido";
+    const valor = app.valor_total ? formatMoney(app.valor_total) : "";
+    const item = document.createElement("article");
+    item.className = `appointment-item${isConcluido ? " concluido" : ""}`;
 
-        item.innerHTML = `
-            <div class="time-badge">${(app.hora || "").slice(0, 5)}</div>
-            <div class="client-info">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                    <h4>${app.nome}</h4>
-                    ${isConcluido ? '<span class="status-badge"><i class="fas fa-check-circle" style="margin-right: 4px;"></i>Concluído</span>' : ''}
-                </div>
-                <div class="client-meta">
-                    <div class="meta-item">
-                        <i class="fas fa-scissors"></i>
-                        <span>${app.servicos}</span>
-                    </div>
-                    <div class="meta-item">
-                        <i class="fas fa-phone-alt"></i>
-                        <span>${app.telefone || "Não informado"}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="action-btns">
-                <a href="${waLink}" target="_blank" class="btn-action btn-wa" title="WhatsApp">
-                    <i class="fab fa-whatsapp"></i>
-                </a>
-                
-                ${!isConcluido ? `
-                    <button onclick="confirmAppointment(${app.id})" class="btn-action btn-check" title="Confirmar">
-                        <i class="fas fa-check"></i>
-                    </button>
-                ` : ''}
+    item.innerHTML = `
+      <div class="appointment-item__head">
+        <span class="time-badge">${(app.hora || "").slice(0, 5)}</span>
+        <span class="status-badge ${isConcluido ? "status-badge--done" : "status-badge--pending"}">
+          <i class="fas fa-${isConcluido ? "check-circle" : "clock"}"></i>
+          ${isConcluido ? "Atendido" : "Pendente"}
+        </span>
+      </div>
+      <div class="appointment-item__body">
+        <h3 class="client-name">${capitalizeName(app.nome)}</h3>
+        <div class="client-meta">
+          <div class="meta-item"><i class="fas fa-scissors"></i><span>${app.servicos}</span></div>
+          <div class="meta-item"><i class="fas fa-phone-alt"></i><span>${app.telefone || "Sem telefone"}</span></div>
+          ${app.forma_pagamento ? `<div class="meta-item"><i class="fas fa-credit-card"></i><span>${app.forma_pagamento}${valor ? ` · ${valor}` : ""}</span></div>` : ""}
+        </div>
+      </div>
+      <div class="appointment-item__actions">
+        <a href="${buildWhatsAppLink(app, dateLabel)}" target="_blank" rel="noopener noreferrer" class="btn-action btn-wa">
+          <i class="fab fa-whatsapp"></i>
+          <span>WhatsApp</span>
+        </a>
+        ${!isConcluido ? `
+          <button type="button" onclick="confirmAppointment(${app.id})" class="btn-action btn-check">
+            <i class="fas fa-check"></i>
+            <span>Atendido</span>
+          </button>
+        ` : `
+          <button type="button" class="btn-action btn-check" disabled style="opacity:0.45;cursor:default;">
+            <i class="fas fa-check"></i>
+            <span>Feito</span>
+          </button>
+        `}
+        <button type="button" onclick="deleteAppointment(${app.id})" class="btn-action btn-del">
+          <i class="fas fa-trash-alt"></i>
+          <span>Cancelar</span>
+        </button>
+      </div>
+    `;
 
-                <button onclick="deleteAppointment(${app.id})" class="btn-action btn-del" title="Excluir">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </div>
-        `;
-        appointmentList.appendChild(item);
-    });
+    appointmentList.appendChild(item);
+  });
 }
 
 async function confirmAppointment(id) {
-    try {
-        const response = await fetch(`${AGENDAMENTOS_URL}/${id}/confirmar`, {
-            method: 'PATCH'
-        });
-
-        if (response.ok) {
-            console.log("Agendamento confirmado com sucesso:", id);
-            fetchAppointments();
-        } else {
-            alert("Erro ao confirmar agendamento.");
-        }
-    } catch (error) {
-        console.error("Erro ao confirmar:", error);
+  try {
+    const response = await authFetch(agendamentosUrl(`/${id}/confirmar`), { method: "PATCH" });
+    if (response.status === 401) {
+      logout();
+      return;
     }
+    if (response.ok) fetchAppointments();
+    else alert("Erro ao confirmar agendamento.");
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function changeDay(delta) {
-    console.log("Botão de seta clicado. Delta:", delta);
-    const currentVal = dateFilter.value;
-    if (!currentVal) {
-        console.warn("Input de data vazio!");
-        return;
-    }
+  const currentVal = dateFilter?.value;
+  if (!currentVal) return;
 
-    try {
-        // Criar objeto Date tratando fuso horário de forma segura (T12:00 para evitar mudanças de dia involuntárias)
-        const date = new Date(currentVal + 'T12:00:00');
-        if (isNaN(date.getTime())) throw new Error("Data inválida");
+  const date = new Date(currentVal + "T12:00:00");
+  date.setDate(date.getDate() + delta);
 
-        date.setDate(date.getDate() + delta);
+  const newDateStr = [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
 
-        const y = date.getFullYear();
-        const m = String(date.getMonth() + 1).padStart(2, '0');
-        const d = String(date.getDate()).padStart(2, '0');
-
-        const newDateStr = `${y}-${m}-${d}`;
-        dateFilter.value = newDateStr;
-
-        console.log("Nova data definida no input:", newDateStr);
-        fetchAppointments();
-    } catch (e) {
-        console.error("Erro ao processar mudança de dia:", e);
-    }
+  dateFilter.value = newDateStr;
+  updateDateDisplay(newDateStr);
+  fetchAppointments();
 }
 
 async function deleteAppointment(id) {
-    if (!confirm("Deseja realmente cancelar este agendamento?")) return;
+  if (!confirm("Cancelar este agendamento?")) return;
 
-    try {
-        const response = await fetch(`${AGENDAMENTOS_URL}/${id}`, {
-            method: 'DELETE'
-        });
-
-        if (response.ok) {
-            console.log("Cancelado com sucesso:", id);
-            fetchAppointments();
-        } else {
-            alert("Erro ao excluir agendamento.");
-        }
-    } catch (error) {
-        console.error("Erro ao deletar:", error);
+  try {
+    const response = await authFetch(agendamentosUrl(`/${id}`), { method: "DELETE" });
+    if (response.status === 401) {
+      logout();
+      return;
     }
+    if (response.ok) fetchAppointments();
+    else alert("Erro ao excluir agendamento.");
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function updateStats(data) {
-    if (totalCount) totalCount.textContent = data.length;
+  const pending = data.filter((a) => a.status !== "concluido").length;
+  const done = data.length - pending;
+
+  if (totalCount) totalCount.textContent = data.length;
+  if (pendingCount) pendingCount.textContent = pending;
+  if (doneCount) doneCount.textContent = done;
 }
 
 function showLoading(isLoading) {
-    if (loadingIndicator) loadingIndicator.style.display = isLoading ? 'block' : 'none';
-    if (appointmentList) appointmentList.style.display = isLoading ? 'none' : 'block';
+  if (loadingIndicator) loadingIndicator.hidden = !isLoading;
+  if (appointmentList) appointmentList.style.display = isLoading ? "none" : "grid";
 }
 
-// Event Listeners
-if (barberFilter) barberFilter.addEventListener('change', () => {
-    console.log("Barbeiro trocado no menu.");
-    fetchAppointments();
+financeTabs.forEach((tab) => {
+  tab.addEventListener("click", () => {
+    financeTabs.forEach((t) => t.classList.remove("finance-tab--active"));
+    tab.classList.add("finance-tab--active");
+    financePeriod = tab.dataset.period || "dia";
+    fetchFinanceiro();
+  });
 });
 
 if (dateFilter) {
-    // Escuta tanto 'change' quanto 'input' para garantir funcionamento em todos os browsers
-    ['change', 'input'].forEach(evt => {
-        dateFilter.addEventListener(evt, () => {
-            console.log(`Evento "${evt}" detectado na data.`);
-            fetchAppointments();
-        });
+  ["change", "input"].forEach((evt) => {
+    dateFilter.addEventListener(evt, () => {
+      updateDateDisplay();
+      fetchAppointments();
     });
+  });
 }
 
-if (prevDayBtn) prevDayBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    changeDay(-1);
-});
-if (nextDayBtn) nextDayBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    changeDay(1);
-});
-if (todayBtn) todayBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    console.log("Voltando hoje...");
-    setInitialDate();
-    fetchAppointments();
-});
+if (prevDayBtn) prevDayBtn.addEventListener("click", (e) => { e.preventDefault(); changeDay(-1); });
+if (nextDayBtn) nextDayBtn.addEventListener("click", (e) => { e.preventDefault(); changeDay(1); });
+if (todayBtn) todayBtn.addEventListener("click", (e) => { e.preventDefault(); setInitialDate(); fetchAppointments(); });
 
-// Initial Load
-fetchAppointments();
+verifySession().then(() => fetchAppointments());
+
+} // requireAuth

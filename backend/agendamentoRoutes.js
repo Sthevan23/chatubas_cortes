@@ -7,15 +7,18 @@ const {
   confirmarAgendamento,
   buscarHorariosOcupados,
 } = require("./agendamentoController");
+const { authMiddleware } = require("./auth");
 
 const router = express.Router();
 
-router.get("/", listarAgendamentos);
-router.post("/", criarAgendamento);
-router.put("/:id", atualizarAgendamento);
-router.delete("/:id", removerAgendamento);
-router.patch("/:id/confirmar", confirmarAgendamento);
+// Público — site do cliente
 router.get("/ocupados", buscarHorariosOcupados);
+router.post("/", criarAgendamento);
+
+// Protegido — painel do barbeiro
+router.get("/", authMiddleware, listarAgendamentos);
+router.put("/:id", authMiddleware, atualizarAgendamento);
+router.delete("/:id", authMiddleware, removerAgendamento);
+router.patch("/:id/confirmar", authMiddleware, confirmarAgendamento);
 
 module.exports = router;
-

@@ -1,0 +1,10 @@
+{
+  "name": "chatubas-cortes",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Site e sistema de agendamento — Chatubas Cortes",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js"
+  }
+}

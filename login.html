@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Chatubas Cortes</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%230a0c10' width='100' height='100' rx='18'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='%235b9cf5'%3E%E2%9C%82%3C/text%3E%3C/svg%3E">
+    <meta name="theme-color" content="#0a0c10">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1;500&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style-classic.css?v=2">
+    <link rel="stylesheet" href="css/painel.css?v=4">
+</head>
+
+<body class="painel-page login-page">
+    <div id="portWarning" class="port-warning">
+        ⚠️ Use a porta correta: <a href="http://localhost:3000/login.html">http://localhost:3000/login.html</a>
+    </div>
+
+    <main class="login-wrapper">
+        <div class="login-card">
+            <div class="login-brand">
+                <div class="logo">CHATUBAS <span>PAINEL</span></div>
+                <p>Acesso exclusivo para barbeiros</p>
+            </div>
+
+            <form id="loginForm" class="login-form" novalidate>
+                <div class="input-group">
+                    <label for="usuario"><i class="fas fa-user"></i> Usuário</label>
+                    <input type="text" id="usuario" class="glass-input" placeholder="Seu login" autocomplete="username" required>
+                </div>
+                <div class="input-group">
+                    <label for="senha"><i class="fas fa-lock"></i> Senha</label>
+                    <div class="password-field">
+                        <input type="password" id="senha" class="glass-input" placeholder="Sua senha" autocomplete="current-password" required>
+                        <button type="button" id="toggleSenha" class="password-toggle" aria-label="Mostrar senha" aria-pressed="false">
+                            <i class="fas fa-eye" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+                <p id="loginError" class="login-error" hidden></p>
+                <button type="submit" id="loginBtn" class="btn-primary login-submit">
+                    <i class="fas fa-sign-in-alt"></i> Entrar
+                </button>
+            </form>
+
+            <p class="login-hint">
+                Demo: <code>ricardo</code> / <code>ricardo123</code> ·
+                <code>marcos</code> / <code>marcos123</code> ·
+                <code>andre</code> / <code>andre123</code>
+            </p>
+
+            <a href="index.html" class="login-back"><i class="fas fa-arrow-left"></i> Voltar ao site</a>
+        </div>
+    </main>
+
+    <script src="js/login.js?v=2"></script>
+</body>
+
+</html>
