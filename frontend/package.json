@@ -1,0 +1,9 @@
+{
+  "name": "@chatubas/frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Site e painel estáticos — Chatubas Cortes",
+  "scripts": {
+    "start": "npx --yes serve -l 5173 ."
+  }
+}

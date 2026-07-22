@@ -2,9 +2,16 @@
   "name": "chatubas-cortes",
   "version": "1.0.0",
   "private": true,
-  "description": "Site e sistema de agendamento — Chatubas Cortes",
+  "description": "Chatubas Cortes — monorepo frontend + API (Clean Architecture)",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "start": "node backend/server.js",
-    "dev": "node backend/server.js"
+    "start": "npm run start --workspace=backend",
+    "dev": "npm run dev:api",
+    "dev:api": "npm run start --workspace=backend",
+    "dev:web": "npm run start --workspace=frontend",
+    "prepare:hostinger": "node scripts/prepare-hostinger.js"
   }
 }

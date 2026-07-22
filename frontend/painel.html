@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Barbeiro | Chatubas Cortes</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%230a0c10' width='100' height='100' rx='18'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='%235b9cf5'%3E%E2%9C%82%3C/text%3E%3C/svg%3E">
+    <meta name="theme-color" content="#0a0c10">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1;500&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style-classic.css?v=2">
+    <link rel="stylesheet" href="css/painel.css?v=6">
+</head>
+
+<body class="painel-page">
+    <div id="portWarning" class="port-warning">
+        Site e API estão separados. Rode a API na porta 3000 e o front com <code>npm run dev:web</code>.
+    </div>
+
+    <header class="painel-topbar">
+        <div class="container painel-topbar-inner">
+            <div class="painel-brand">
+                <div class="logo">CHATUBAS <span>PAINEL</span></div>
+                <p id="dateHeading" class="painel-date-heading">Agenda do dia</p>
+            </div>
+            <div class="painel-topbar-actions">
+                <span id="barberName" class="painel-user-badge"></span>
+                <button type="button" id="logoutBtn" class="btn-outline btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+                <a href="index.html" class="painel-back-link"><i class="fas fa-arrow-left"></i> Site</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="finance-section">
+            <div class="finance-header">
+                <h2 class="section-heading"><i class="fas fa-wallet"></i> Financeiro</h2>
+                <div class="finance-tabs">
+                    <button type="button" class="finance-tab finance-tab--active" data-period="dia">Dia selecionado</button>
+                    <button type="button" class="finance-tab" data-period="mes">Este mês</button>
+                </div>
+            </div>
+            <div class="finance-grid">
+                <div class="finance-card finance-card--total">
+                    <span class="finance-label">Total ganho</span>
+                    <span id="financeTotal" class="finance-value">R$ 0,00</span>
+                </div>
+                <div class="finance-card">
+                    <span class="finance-label">Atendimentos</span>
+                    <span id="financeCount" class="finance-value finance-value--sm">0</span>
+                </div>
+            </div>
+            <div id="financeByPayment" class="finance-payments"></div>
+            <div id="financeHistory" class="finance-history"></div>
+        </section>
+
+        <section class="filters-section">
+            <div class="filters-grid filters-grid--single">
+                <div class="input-group">
+                    <label for="dateFilter"><i class="fas fa-calendar-alt"></i> Data da agenda</label>
+                    <div class="date-nav">
+                        <button id="prevDay" type="button" class="btn-icon" aria-label="Dia anterior">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <label class="date-br-field" for="dateFilter">
+                            <span id="dateFilterDisplay" class="date-br-display">--/--/----</span>
+                            <input type="date" id="dateFilter" class="date-br-input" lang="pt-BR" aria-label="Data da agenda">
+                        </label>
+                        <button id="nextDay" type="button" class="btn-icon" aria-label="Próximo dia">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-bar">
+                <div class="stats-chips">
+                    <div class="stat-chip">
+                        <span class="stat-chip-value" id="totalCount">0</span>
+                        <span class="stat-chip-label">Total</span>
+                    </div>
+                    <div class="stat-chip stat-chip--pending">
+                        <span class="stat-chip-value" id="pendingCount">0</span>
+                        <span class="stat-chip-label">Pendentes</span>
+                    </div>
+                    <div class="stat-chip stat-chip--done">
+                        <span class="stat-chip-value" id="doneCount">0</span>
+                        <span class="stat-chip-label">Atendidos</span>
+                    </div>
+                </div>
+                <button type="button" id="todayBtn" class="btn-outline btn-today">
+                    <i class="fas fa-calendar-day"></i> Hoje
+                </button>
+            </div>
+        </section>
+
+        <div id="loading" class="empty-state loading-state" hidden>
+            <i class="fas fa-spinner fa-spin painel-accent-icon"></i>
+            <p>Carregando agenda...</p>
+        </div>
+
+        <section class="appointments-section">
+            <h2 class="section-heading">Horários do dia</h2>
+            <div id="appointmentList" class="appointment-list"></div>
+        </section>
+    </div>
+
+    <footer class="painel-footer">
+        &copy; 2026 Chatubas Cortes · Painel interno
+    </footer>
+
+    <script src="js/config.js?v=1"></script>
+    <script src="js/painel.js?v=8"></script>
+</body>
+
+</html>
