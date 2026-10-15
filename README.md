@@ -1,6 +1,6 @@
 # Chatubas Cortes
 
-Monorepo: **frontend** (estático) + **backend** (API Node), pronto para Hostinger.
+Monorepo: **frontend** (estático) + **API PHP** (Hostinger) + **backend** Node (dev local).
 
 ## Estrutura
 
@@ -29,16 +29,16 @@ Guia: [DEPLOY-HOSTINGER.md](DEPLOY-HOSTINGER.md)
 ```bash
 # 1) confira deploy.config.json (já com sthevandev.com.br)
 npm run prepare:hostinger
-# 2) suba dist/site → domínio
-# 3) suba dist/painel → subdomínio painel
-# 4) API Node em api. + MySQL (backend/database/schema.sql)
+# 2) suba dist/site → public_html (inclui pasta api/)
+# 3) configure public_html/api/config.php (MySQL)
+# 4) suba dist/painel → subdomínio painel
 ```
 
 | Serviço | URL |
 |---------|-----|
 | Site | https://sthevandev.com.br |
 | Painel | https://painel.sthevandev.com.br |
-| API | https://api.sthevandev.com.br |
+| API (PHP) | https://sthevandev.com.br/api |
 
 ## API
 

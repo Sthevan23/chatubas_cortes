@@ -1,85 +1,71 @@
-# Deploy Hostinger — Chatubas Cortes
+# Deploy Hostinger — Chatubas Cortes (PHP)
 
-## Mapa dos endereços
+Hospedagem compartilhada Hostinger: **site + API PHP + painel**. Não precisa de VPS/Node.
 
-| O quê | URL exemplo | Pasta gerada |
-|--------|-------------|--------------|
-| Site | `https://seudominio.com` | `dist/site/` |
-| Painel | `https://painel.seudominio.com` | `dist/painel/` |
-| API | `https://api.seudominio.com` | pasta `backend/` no Node/VPS |
+## Mapa
 
-## 1. Configure as URLs
+| O quê | URL | Upload |
+|--------|-----|--------|
+| Site + API | `https://sthevandev.com.br` | `dist/site/` → `public_html` |
+| Painel | `https://painel.sthevandev.com.br` | `dist/painel/` → pasta do subdomínio |
 
-Edite `deploy.config.json` na raiz:
+A API fica em **`/api`** (ex.: `https://sthevandev.com.br/api/health`).
+
+## 1. URLs
+
+Edite `deploy.config.json`:
 
 ```json
 {
-  "apiUrl": "https://api.seudominio.com",
-  "siteUrl": "https://seudominio.com",
-  "painelUrl": "https://painel.seudominio.com"
+  "apiUrl": "https://sthevandev.com.br/api",
+  "siteUrl": "https://sthevandev.com.br",
+  "painelUrl": "https://painel.sthevandev.com.br"
 }
 ```
 
-## 2. Gere os arquivos de upload
+## 2. Gerar arquivos
 
 ```bash
 npm run prepare:hostinger
 ```
 
-Isso cria `dist/site/` e `dist/painel/` com `config.js` e `.htaccess` prontos.
+Isso cria `dist/site/` (com `api/`), `dist/painel/` e `js/config.js` prontos.
 
-## 3. Site (domínio)
+## 3. MySQL
 
-1. hPanel → Gerenciador de arquivos → `public_html`
-2. Envie **todo** o conteúdo de `dist/site/`
+1. hPanel → Bancos de dados MySQL → criar banco + usuário  
+2. phpMyAdmin → executar `backend/database/schema.sql`
 
-## 4. Painel (subdomínio)
+## 4. Upload do site (com API)
 
-1. hPanel → Domínios → Subdomínios → criar `painel`
-2. Envie **todo** o conteúdo de `dist/painel/` para a pasta do subdomínio
-3. Abrir `https://painel.seudominio.com` → tela de login
+1. hPanel → Gerenciador de arquivos → `public_html`  
+2. Envie **todo** o conteúdo de `dist/site/` (inclui pasta `api/`)
 
-## 5. Banco MySQL
+## 5. Configurar API PHP
 
-1. hPanel → Bancos de dados MySQL → criar banco + usuário
-2. phpMyAdmin → selecionar o banco → SQL
-3. Colar e executar `backend/database/schema.sql`
+1. Em `public_html/api/`, copie `config.example.php` → `config.php`  
+2. Preencha `db_*` com os dados do hPanel  
+3. Defina `auth_secret` (string longa aleatória)  
+4. Ajuste `cors_origins` se usar outro domínio  
+5. Teste no navegador: `https://seudominio.com/api/health` → `{"status":"ok",...}`
 
-## 6. API (Node)
+## 6. Painel (subdomínio)
 
-Precisa de **VPS** ou **Node.js Hosting** na Hostinger (hospedagem só PHP não roda a API).
-
-1. Envie a pasta `backend/`
-2. Crie `.env`:
-
-```env
-PORT=3000
-CORS_ORIGIN=https://seudominio.com,https://www.seudominio.com,https://painel.seudominio.com
-AUTH_SECRET=um-segredo-forte-aleatorio
-DB_HOST=localhost
-DB_USER=seu_usuario_hostinger
-DB_PASSWORD=sua_senha
-DB_NAME=seu_banco_hostinger
-```
-
-3. Instale e suba:
-
-```bash
-cd backend
-npm ci --omit=dev
-node server.js
-# recomendado: pm2 start server.js --name chatubas-api
-```
-
-4. Aponte o subdomínio `api` para esse processo (proxy HTTPS).
+1. hPanel → Subdomínios → criar `painel`  
+2. Envie **todo** `dist/painel/` para a pasta do subdomínio  
+3. Acesse `https://painel.seudominio.com` → login
 
 ## Checklist
 
-- [ ] `deploy.config.json` com URLs reais
-- [ ] `npm run prepare:hostinger`
-- [ ] Upload `dist/site` → domínio
-- [ ] Upload `dist/painel` → subdomínio painel
-- [ ] Schema SQL no MySQL
-- [ ] API no ar + CORS com site e painel
-- [ ] Testar agendamento no site
-- [ ] Testar login em `painel.seudominio.com`
+- [ ] `deploy.config.json` com URLs reais  
+- [ ] `npm run prepare:hostinger`  
+- [ ] Schema SQL no MySQL  
+- [ ] Upload `dist/site` → `public_html`  
+- [ ] `api/config.php` configurado  
+- [ ] Upload `dist/painel` → subdomínio  
+- [ ] Testar agendamento no site  
+- [ ] Testar login no painel  
+
+## API Node (opcional)
+
+A pasta `backend/` (Node) continua no repo para desenvolvimento local. Em produção na Hostinger compartilhada, use a API PHP em `php/api/`.

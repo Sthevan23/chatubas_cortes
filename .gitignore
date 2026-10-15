@@ -6,3 +6,7 @@ backend/.env
 backend/data/agendamentos.json
 .vscode/
 dist/
+deploy.hostinger.json
+php/api/config.php
+dist-site.zip
+dist-painel.zip

@@ -12,6 +12,7 @@
     "dev": "npm run dev:api",
     "dev:api": "npm run start --workspace=backend",
     "dev:web": "npm run start --workspace=frontend",
-    "prepare:hostinger": "node scripts/prepare-hostinger.js"
+    "prepare:hostinger": "node scripts/prepare-hostinger.js",
+    "deploy:hostinger": "powershell -ExecutionPolicy Bypass -File scripts/deploy-hostinger-ftp.ps1"
   }
 }

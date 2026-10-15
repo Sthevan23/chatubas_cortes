@@ -1,0 +1,7 @@
+{
+  "host": "ftp.sthevandev.com.br",
+  "user": "u123456789",
+  "password": "SUA_SENHA_FTP",
+  "siteRemotePath": "/public_html",
+  "painelRemotePath": "/domains/sthevandev.com.br/public_html/painel"
+}

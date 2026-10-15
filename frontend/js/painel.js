@@ -23,12 +23,20 @@ function authHeaders() {
 }
 
 function authFetch(url, options = {}) {
+  const method = String(options.method || "GET").toUpperCase();
+  const headers = {
+    ...authHeaders(),
+    ...(options.headers || {}),
+  };
+  let finalMethod = method;
+  if (method === "PATCH" || method === "DELETE") {
+    finalMethod = "POST";
+    headers["X-HTTP-Method-Override"] = method;
+  }
   return fetch(url, {
     ...options,
-    headers: {
-      ...authHeaders(),
-      ...(options.headers || {}),
-    },
+    method: finalMethod,
+    headers,
   });
 }
 

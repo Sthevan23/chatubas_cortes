@@ -1,6 +1,6 @@
 /**
  * Gera pastas prontas para upload na Hostinger:
- *   dist/site/    → domínio principal (public_html)
+ *   dist/site/    → domínio principal (public_html), inclui pasta api/ (PHP)
  *   dist/painel/  → subdomínio painel.* (document root do subdomínio)
  *
  * Uso:
@@ -15,6 +15,7 @@ const ROOT = path.resolve(__dirname, "..");
 const FRONT = path.join(ROOT, "frontend");
 const DIST = path.join(ROOT, "dist");
 const CONFIG_PATH = path.join(ROOT, "deploy.config.json");
+const PHP_API = path.join(ROOT, "php", "api");
 
 function readJson(file) {
   return JSON.parse(fs.readFileSync(file, "utf8"));
@@ -79,6 +80,33 @@ Options -Indexes
   fs.writeFileSync(path.join(destDir, ".htaccess"), body, "utf8");
 }
 
+function writePhpConfigExample(apiDir, cfg) {
+  const origins = new Set([
+    cfg.siteUrl,
+    cfg.painelUrl,
+    cfg.siteUrl.replace("://www.", "://"),
+    cfg.siteUrl.replace("://", "://www."),
+  ].filter(Boolean));
+  const corsList = [...origins].map((u) => `        ${JSON.stringify(u)},`).join("\n");
+  const content = `<?php
+/**
+ * Copie para config.php e preencha MySQL (hPanel).
+ * Gerado por npm run prepare:hostinger
+ */
+return [
+    'db_host' => 'localhost',
+    'db_name' => 'SEU_BANCO',
+    'db_user' => 'SEU_USUARIO',
+    'db_pass' => 'SUA_SENHA',
+    'auth_secret' => 'troque-por-um-segredo-forte',
+    'cors_origins' => [
+${corsList}
+    ],
+];
+`;
+  fs.writeFileSync(path.join(apiDir, "config.example.php"), content, "utf8");
+}
+
 function patchHtml(filePath, replacements) {
   let html = fs.readFileSync(filePath, "utf8");
   for (const [from, to] of replacements) {
@@ -123,6 +151,15 @@ function build() {
     ['id="linkAreaProfissional" href="login.html"', `id="linkAreaProfissional" href="${cfg.painelUrl}"`],
   ]);
 
+  // --- API PHP (public_html/api) ---
+  if (fs.existsSync(PHP_API)) {
+    const apiDir = path.join(siteDir, "api");
+    copyDir(PHP_API, apiDir);
+    writePhpConfigExample(apiDir, cfg);
+  } else {
+    console.warn("[Aviso] Pasta php/api não encontrada — API PHP não incluída no dist.");
+  }
+
   // --- PAINEL (subdomínio) ---
   copyDir(path.join(FRONT, "css"), path.join(painelDir, "css"));
   ensureDir(path.join(painelDir, "js"));
@@ -157,16 +194,17 @@ function build() {
 
 1) Domínio principal (${cfg.siteUrl})
    → Envie TODO o conteúdo de dist/site/ para public_html
+   → A pasta api/ (PHP) vai junto — não precisa de Node/VPS
 
 2) Subdomínio painel (${cfg.painelUrl})
    → No hPanel crie o subdomínio "painel"
    → Envie TODO o conteúdo de dist/painel/ para a pasta do subdomínio
    → Abrir ${cfg.painelUrl} já cai no login
 
-3) API (${cfg.apiUrl})
-   → VPS / Node Hosting Hostinger
-   → Pasta backend/ + arquivo .env
-   → CORS_ORIGIN=${cfg.siteUrl},${cfg.painelUrl}
+3) API PHP (${cfg.apiUrl})
+   → public_html/api/config.example.php → renomeie para config.php
+   → Preencha MySQL (hPanel) e auth_secret
+   → Teste: ${cfg.apiUrl}/health
 
 MySQL: rode backend/database/schema.sql no phpMyAdmin do banco criado no hPanel.
 `,
