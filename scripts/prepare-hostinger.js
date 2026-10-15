@@ -220,6 +220,15 @@ MySQL: rode backend/database/schema.sql no phpMyAdmin do banco criado no hPanel.
     "utf8"
   );
 
+  const deployCheck = `Deploy OK
+Site: ${cfg.siteUrl}
+API: ${cfg.apiUrl}
+Gerado: ${new Date().toISOString()}
+GitHub branch hostinger = arquivos na raiz (index.html)
+GitHub branch main = pasta public/ (se o hPanel pedir subpasta)
+`;
+  fs.writeFileSync(path.join(siteDir, "DEPLOY_CHECK.txt"), deployCheck, "utf8");
+
   console.log("Pronto!");
   console.log(`  dist/site/    → ${cfg.siteUrl}`);
   console.log(`  dist/painel/  → ${cfg.painelUrl}`);

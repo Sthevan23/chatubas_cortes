@@ -27,8 +27,17 @@ Edite `deploy.config.json`:
 
 1. Push na **`main`** dispara o workflow **Hostinger auto deploy**.
 2. Ele publica o site pronto no branch **`hostinger`** (só arquivos web, `index.html` na raiz).
-3. No **hPanel → Git**, conecte o repo e escolha branch **`hostinger`** (não use `main`, senão dá **403**).
-4. A cada push em `main`, a Hostinger puxa o branch `hostinger` de novo.
+3. No **hPanel → Git** (site `chatubascortes.seuproximosite.com.br`):
+
+   **Opção A (recomendada)** — branch **`hostinger`**, pasta de deploy **vazia / raiz**.
+
+   **Opção B** — branch **`main`**, pasta de deploy **`public`**.
+
+   Não use `main` na raiz (monorepo → **403**).
+
+4. Depois do deploy, abra **`/DEPLOY_CHECK.txt`**. Se der 404, o Git ainda não publicou os arquivos.
+
+5. A cada push em `main`, o GitHub Actions atualiza `hostinger` e `public/`.
 
 Build local (opcional):
 

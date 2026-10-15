@@ -1,10 +1,11 @@
-# Gera branch "hostinger" com dist/site (index.html na raiz) para Git Deploy da Hostinger.
-# hPanel → Git → branch: hostinger (não use main — monorepo dá 403).
+# Build → branch "hostinger" (raiz) + pasta public/ na main (subpasta no hPanel).
 name: Hostinger auto deploy
 
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "public/**"
 
 permissions:
   contents: write
@@ -19,6 +20,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -28,7 +31,20 @@ jobs:
       - name: Build site (PHP API + painel)
         run: npm run prepare:hostinger
 
-      - name: Publish to branch hostinger
+      - name: Sync public/ on main
+        run: |
+          rm -rf public
+          cp -r dist/site public
+
+      - name: Commit public/ for Hostinger (subpasta)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/
+          git diff --staged --quiet || git commit -m "chore(hostinger): sync public/ [skip ci]"
+          git push
+
+      - name: Publish branch hostinger (raiz do site)
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: dist/site
