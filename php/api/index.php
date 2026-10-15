@@ -3,6 +3,19 @@
 declare(strict_types=1);
 
 require __DIR__ . '/lib/Http.php';
+
+$method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+$override = strtoupper(trim($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] ?? ''));
+if ($method === 'POST' && in_array($override, ['PUT', 'PATCH', 'DELETE'], true)) {
+    $method = $override;
+}
+$path = request_path();
+
+if ($method === 'GET' && $path === '/health') {
+    header('Access-Control-Allow-Origin: *');
+    json_response(200, ['status' => 'ok', 'timestamp' => gmdate('c')]);
+}
+
 require __DIR__ . '/lib/Pricing.php';
 require __DIR__ . '/lib/Auth.php';
 require __DIR__ . '/lib/AgendamentoRepository.php';
@@ -34,16 +47,6 @@ try {
 
 $repo = new AgendamentoRepository($pdo);
 $secret = (string) ($cfg['auth_secret'] ?? '');
-$method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
-$override = strtoupper(trim($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] ?? ''));
-if ($method === 'POST' && in_array($override, ['PUT', 'PATCH', 'DELETE'], true)) {
-    $method = $override;
-}
-$path = request_path();
-
-if ($method === 'GET' && $path === '/health') {
-    json_response(200, ['status' => 'ok', 'timestamp' => gmdate('c')]);
-}
 
 if ($method === 'POST' && $path === '/auth/login') {
     $body = read_json_body();

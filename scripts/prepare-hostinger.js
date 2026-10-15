@@ -68,16 +68,20 @@ function stripDemoAndDevHints(html) {
 }
 
 function writeHtaccess(destDir) {
-  const body = `DirectoryIndex index.html
-Options -Indexes
-
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteCond %{HTTPS} !=on
-  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-</IfModule>
+  // Mínimo: evita 403 comum na Hostinger (rewrite/Indexes agressivos em public_html vazio).
+  const body = `DirectoryIndex index.html index.php
 `;
   fs.writeFileSync(path.join(destDir, ".htaccess"), body, "utf8");
+}
+
+function sameSitePainel(cfg) {
+  try {
+    const site = new URL(cfg.siteUrl);
+    const painel = new URL(cfg.painelUrl);
+    return site.host === painel.host;
+  } catch {
+    return false;
+  }
 }
 
 function writePhpConfigExample(apiDir, cfg) {
@@ -187,19 +191,24 @@ function build() {
   writeConfig(painelDir, cfg);
   writeHtaccess(painelDir);
 
+  if (sameSitePainel(cfg)) {
+    copyDir(painelDir, path.join(siteDir, "painel"));
+    console.log("  (painel incluído em dist/site/painel/ — um upload só no public_html)");
+  }
+
   fs.writeFileSync(
     path.join(DIST, "LEIA-ME-UPLOAD.txt"),
     `UPLOAD HOSTINGER
 ================
 
-1) Domínio principal (${cfg.siteUrl})
-   → Envie TODO o conteúdo de dist/site/ para public_html
-   → A pasta api/ (PHP) vai junto — não precisa de Node/VPS
+1) Site (${cfg.siteUrl})
+   → hPanel → Arquivos → public_html do domínio chatubascortes.seuproximosite.com.br
+   → Apague arquivos antigos (.htaccess quebrado, index default) se der 403
+   → Envie TODO o conteúdo de dist/site/ (index.html, css/, js/, api/, painel/)
 
-2) Subdomínio painel (${cfg.painelUrl})
-   → No hPanel crie o subdomínio "painel"
-   → Envie TODO o conteúdo de dist/painel/ para a pasta do subdomínio
-   → Abrir ${cfg.painelUrl} já cai no login
+2) Painel (${cfg.painelUrl})
+   → Já vai dentro de dist/site/painel/ (mesmo upload acima)
+   → Abra ${cfg.painelUrl} ou ${cfg.painelUrl}/login.html
 
 3) API PHP (${cfg.apiUrl})
    → public_html/api/config.example.php → renomeie para config.php
