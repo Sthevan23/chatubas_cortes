@@ -6,8 +6,8 @@ Hospedagem compartilhada Hostinger: **site + API PHP + painel**. Não precisa de
 
 | O quê | URL | Upload |
 |--------|-----|--------|
-| Site + API | `https://sthevandev.com.br` | `dist/site/` → `public_html` |
-| Painel | `https://painel.sthevandev.com.br` | `dist/painel/` → pasta do subdomínio |
+| Site + API + painel | `https://chatubascortes.seuproximosite.com.br` | branch **`hostinger`** → `public_html` |
+| Painel (URL) | `.../painel` | pasta `painel/` no mesmo deploy |
 
 A API fica em **`/api`** (ex.: `https://sthevandev.com.br/api/health`).
 
@@ -23,13 +23,20 @@ Edite `deploy.config.json`:
 }
 ```
 
-## 2. Gerar arquivos
+## 2. Auto deploy (GitHub → Hostinger)
+
+1. Push na **`main`** dispara o workflow **Hostinger auto deploy**.
+2. Ele publica o site pronto no branch **`hostinger`** (só arquivos web, `index.html` na raiz).
+3. No **hPanel → Git**, conecte o repo e escolha branch **`hostinger`** (não use `main`, senão dá **403**).
+4. A cada push em `main`, a Hostinger puxa o branch `hostinger` de novo.
+
+Build local (opcional):
 
 ```bash
 npm run prepare:hostinger
 ```
 
-Isso cria `dist/site/` (com `api/`), `dist/painel/` e `js/config.js` prontos.
+Isso cria `dist/site/` (com `api/`, `painel/`) e `js/config.js` prontos.
 
 ## 3. MySQL
 

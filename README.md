@@ -22,17 +22,14 @@ npm run dev:api    # http://localhost:3000
 npm run dev:web    # http://localhost:5173
 ```
 
-## Deploy Hostinger
+## Deploy Hostinger (auto)
 
 Guia: [DEPLOY-HOSTINGER.md](DEPLOY-HOSTINGER.md)
 
-```bash
-# 1) confira deploy.config.json (já com sthevandev.com.br)
-npm run prepare:hostinger
-# 2) suba dist/site → public_html (inclui pasta api/)
-# 3) configure public_html/api/config.php (MySQL)
-# 4) suba dist/painel → subdomínio painel
-```
+1. Confira `deploy.config.json` (domínio atual).
+2. Push em **`main`** → GitHub Actions gera branch **`hostinger`**.
+3. No hPanel Git, deploy do branch **`hostinger`**.
+4. Uma vez: `api/config.php` no servidor (MySQL do hPanel).
 
 | Serviço | URL |
 |---------|-----|

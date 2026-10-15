@@ -1,7 +1,7 @@
 {
-  "host": "ftp.sthevandev.com.br",
+  "host": "ftp.chatubascortes.seuproximosite.com.br",
   "user": "u123456789",
   "password": "SUA_SENHA_FTP",
   "siteRemotePath": "/public_html",
-  "painelRemotePath": "/domains/sthevandev.com.br/public_html/painel"
+  "painelRemotePath": "/public_html/painel"
 }
