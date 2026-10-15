@@ -1,0 +1,20 @@
+DirectoryIndex index.html
+
+# Git Hostinger (branch main): site gerado fica em /public/
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  RewriteRule ^api/(.*)$ public/api/$1 [L,QSA]
+  RewriteRule ^painel/?(.*)$ public/painel/$1 [L,QSA]
+  RewriteRule ^css/(.*)$ public/css/$1 [L]
+  RewriteRule ^js/(.*)$ public/js/$1 [L]
+
+  RewriteRule ^$ public/index.html [L]
+  RewriteRule ^index\.html$ public/index.html [L]
+</IfModule>
+
+# Não expor código do repositório no domínio
+<IfModule mod_authz_core.c>
+  RedirectMatch 403 ^/(backend|frontend|php|scripts|dist|\.github|node_modules)(/|$)
+</IfModule>

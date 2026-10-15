@@ -6,6 +6,8 @@ on:
     branches: [main]
     paths-ignore:
       - "public/**"
+      - "index.html"
+      - ".htaccess"
 
 permissions:
   contents: write

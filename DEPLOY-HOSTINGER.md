@@ -33,7 +33,9 @@ Edite `deploy.config.json`:
 
    **Opção B** — branch **`main`**, pasta de deploy **`public`**.
 
-   Não use `main` na raiz (monorepo → **403**).
+   Não use `main` na raiz sem as regras — o Git coloca o site em **`/public/`** (por isso `/` dava 403 e `/api` 404).
+
+   **Melhor:** branch **`hostinger`** (só arquivos web na raiz do `public_html`).
 
 4. Depois do deploy, abra **`/DEPLOY_CHECK.txt`**. Se der 404, o Git ainda não publicou os arquivos.
 
