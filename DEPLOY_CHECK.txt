@@ -1,0 +1,6 @@
+Deploy OK
+Site: https://chatubascortes.seuproximosite.com.br
+API: https://chatubascortes.seuproximosite.com.br/api
+Gerado: 2026-10-15T13:11:10.685Z
+GitHub branch hostinger = arquivos na raiz (index.html)
+GitHub branch main = pasta public/ (se o hPanel pedir subpasta)
